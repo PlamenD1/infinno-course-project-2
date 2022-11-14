@@ -14,13 +14,16 @@ public class Query {
     public Class<?> returnType;
     public String resultMap;
     public String sql;
+    public boolean useCache = false;
 
-    public Query(QUERY_TYPE query_type, String sql, Class<?> returnType, String resultMap) {
+    public Query(QUERY_TYPE query_type, String sql, Class<?> returnType, String resultMap, boolean useCache) {
         this.query_type = query_type;
         this.paramNames = new ArrayList<>();
         this.sql = getTransformedSql(sql);
         this.returnType = returnType;
         this.resultMap = resultMap;
+//        System.out.println(sql + " | " + useCache);
+        this.useCache = useCache;
     }
 
     String getTransformedSql(String sql) {

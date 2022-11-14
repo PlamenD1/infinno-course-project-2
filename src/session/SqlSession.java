@@ -42,7 +42,8 @@ public class SqlSession implements Closeable {
         Mapper mapper = getMapper(methodId);
         Query query = mapper.queries.get(methodId);
         PreparedStatement ps = getPreparedStatement(query.sql, query.paramNames, params, conn);
-        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId)) {
+
+        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId) && query.useCache) {
             return (T) mapper.cache.get(methodId);
         }
 
@@ -90,7 +91,7 @@ public class SqlSession implements Closeable {
         Query query = mapper.queries.get(methodId);
         PreparedStatement ps = getPreparedStatement(query.sql, query.paramNames, params, conn);
 
-        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId)) {
+        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId) && query.useCache) {
             return (List<T>) mapper.cache.get(methodId);
         }
 

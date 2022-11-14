@@ -269,11 +269,13 @@ public class XMLConfigParser {
         Query.QUERY_TYPE queryType = null;
         String sql = null;
         Class<?> returnType = method.getReturnType();
+        boolean useCache = false;
 
         Select select = method.getAnnotation(Select.class);
         if (select != null) {
             queryType = Query.QUERY_TYPE.SELECT;
             sql = select.value();
+            useCache = select.useCache();
         }
 
         Insert insert = method.getAnnotation(Insert.class);
@@ -294,7 +296,7 @@ public class XMLConfigParser {
             sql = delete.value();
         }
 
-        return new Query(queryType, sql, returnType, null);
+        return new Query(queryType, sql, returnType, null, useCache);
     }
 
     private void addQuery(Mapper mapper, Node mapperChild) throws Exception {
@@ -351,12 +353,18 @@ public class XMLConfigParser {
     Query buildQuery(Node mapperChild, String queryTypeString) throws Exception {
         Query.QUERY_TYPE queryType = Query.QUERY_TYPE.valueOf(queryTypeString.toUpperCase());
 
+        boolean useCache = false;
         String resultType = "java.lang.Integer";
         String resultMap = null;
         if (queryType.equals(Query.QUERY_TYPE.SELECT)) {
             NamedNodeMap attrs = mapperChild.getAttributes();
             if (attrs == null) {
                 throw new ParserConfigurationException("Could not find attributes on element: select");
+            }
+
+            Node useCacheAttr = attrs.getNamedItem("useCache");
+            if (useCacheAttr != null && useCacheAttr.getTextContent().equals("true")) {
+                useCache = true;
             }
 
             Node attr = attrs.getNamedItem("resultType");
@@ -378,7 +386,7 @@ public class XMLConfigParser {
         if (Objects.equals(sql, ""))
             throw new ParserConfigurationException("Text content of: " +  queryType.toString().toLowerCase() + " cannot be empty!");
 
-        return new Query(queryType, sql, resultClass, resultMap);
+        return new Query(queryType, sql, resultClass, resultMap, useCache);
     }
 
     String getAttributeValue(Node node, String name) throws Exception {
