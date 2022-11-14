@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper>
+<mapper namespace="src">
+    <cache eviction="FIFO" size="6" flushInterval="60000"/>
+    <resultMap id="employeeResultMap" type="Employee">
+        <id column="id" property="id" />
+        <result column="firstName" property="firstName" />
+        <result column="lastName" property="lastName" />
+        <result column="age" property="age" />
+        <result column="salary" property="salary" />
+        <result column="jobID" property="jobId" />
+        <result column="managerID" property="managerId" />
+        <result column="departmentID" property="departmentId" />
+    </resultMap>
+    <select id="getEmployeeById" resultType="Employee" useCaching="true">
+        SELECT * FROM Employees WHERE id = #{value}
+    </select>
+    <select id="getAllEmployees" resultMap="employeeResultMap" useCaching="true">
+        SELECT * FROM Employees
+    </select>
+    <select id="getAllEmployeesByJob" resultMap="employeeResultMap">
+        SELECT * FROM Employees WHERE jobID = #{value}
+    </select>
+    <insert id="addEmployee" flushCache="true">
+        INSERT INTO Employees (firstName, lastName, age, salary, jobID, managerID, departmentID)
+        VALUES (#{firstName}, #{lastName}, #{age}, #{salary}, #{jobId}, #{managerId}, #{departmentId})
+    </insert>
+    <update id="updateEmployee" flushCache="true">
+        UPDATE Employees
+        SET firstName = #{firstName}, lastName = #{lastName}, age = #{age}, salary = #{salary}, jobID = #{jobId}, managerID = #{managerId}, departmentID = #{departmentId},
+        WHERE id = #{id}
+    </update>
+    <update id="updateEmployeeSalaries" flushCache="true">
+        UPDATE Employees SET salary = MAX(#{percent} * salary + salary, #{minSalary})
+    </update>
+    <delete id="deleteEmployee" flushCache="true">
+        DELETE FROM Employees WHERE id = #{value}
+    </delete>
+</mapper>
