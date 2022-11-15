@@ -1,11 +1,13 @@
 package config.cache;
 
+import config.mapper.Mapper;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MapperCache<K, V> {
+public class FIFOCache<K, V> implements Cache<K, V> {
     static class Element<V> {
         V value;
         Element(V value) {
@@ -21,7 +23,7 @@ public class MapperCache<K, V> {
 
     public int capacity;
 
-    public MapperCache(int capacity, long flushInterval) {
+    public FIFOCache(int capacity, long flushInterval) {
         this.elements = new LinkedHashMap<>();
         this.capacity = capacity;
         setNewTimer(flushInterval);

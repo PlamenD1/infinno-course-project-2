@@ -13,6 +13,8 @@ public class Test {
             System.out.println(mapper.getEmployeeById(2));
             mapper.addEmployee(new Employee(4, "Ivan", "Petrov", 19, 2000f, 1, 1, 1));
             System.out.println(mapper.getEmployeeById(2));
+            System.out.println(mapper.getEmployeeById(1));
+            System.out.println(mapper.getEmployeeById(1));
         }
     }
 }

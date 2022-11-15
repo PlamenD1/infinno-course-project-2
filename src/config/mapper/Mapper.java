@@ -1,6 +1,7 @@
 package config.mapper;
 
-import config.cache.MapperCache;
+import config.cache.Cache;
+import config.cache.FIFOCache;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class Mapper {
     public String fileName;
     public String namespace;
 
-    public MapperCache<String, Object> cache;
+    public Cache<CacheKey, Object> cache;
 
     public Mapper() {
         this.resultMaps = new HashMap<>();

@@ -1,7 +1,7 @@
 package session;
 
 import com.sun.jdi.connect.spi.ClosedConnectionException;
-import config.cache.MapperCache;
+import config.mapper.CacheKey;
 import config.mapper.Mapper;
 import config.mapper.Query;
 import config.mapper.ResultMap;
@@ -42,9 +42,10 @@ public class SqlSession implements Closeable {
         Mapper mapper = getMapper(methodId);
         Query query = mapper.queries.get(methodId);
         PreparedStatement ps = getPreparedStatement(query.sql, query.paramNames, params, conn);
+        CacheKey cacheKey = new CacheKey(methodId, params);
 
-        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId) && query.useCache) {
-            return (T) mapper.cache.get(methodId);
+        if (mapper.cache != null && mapper.cache.get(cacheKey) != null && query.useCache) {
+            return (T) mapper.cache.get(cacheKey);
         }
 
         System.out.println("GETTING FROM DATABASE...");
@@ -69,7 +70,7 @@ public class SqlSession implements Closeable {
         }
 
         if (mapper.cache != null) {
-            mapper.cache.set(methodId, result);
+            mapper.cache.set(cacheKey, result);
         }
 
         if (rs.next())
@@ -90,9 +91,10 @@ public class SqlSession implements Closeable {
         Mapper mapper = getMapper(methodId);
         Query query = mapper.queries.get(methodId);
         PreparedStatement ps = getPreparedStatement(query.sql, query.paramNames, params, conn);
+        CacheKey cacheKey = new CacheKey(methodId, params);
 
-        if (mapper.cache != null && mapper.cache.elements.containsKey(methodId) && query.useCache) {
-            return (List<T>) mapper.cache.get(methodId);
+        if (mapper.cache != null && mapper.cache.get(cacheKey) != null && query.useCache) {
+            return (List<T>) mapper.cache.get(cacheKey);
         }
 
         ResultSet rs = ps.executeQuery();
@@ -107,7 +109,7 @@ public class SqlSession implements Closeable {
         }
 
         if (mapper.cache != null) {
-            mapper.cache.set(methodId, result);
+            mapper.cache.set(cacheKey, result);
         }
 
         return result;

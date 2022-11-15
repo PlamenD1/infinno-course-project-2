@@ -22,7 +22,6 @@ public class Query {
         this.sql = getTransformedSql(sql);
         this.returnType = returnType;
         this.resultMap = resultMap;
-//        System.out.println(sql + " | " + useCache);
         this.useCache = useCache;
     }
 

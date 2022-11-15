@@ -12,10 +12,10 @@
         <result column="managerID" property="managerId" />
         <result column="departmentID" property="departmentId" />
     </resultMap>
-    <select id="getEmployeeById" resultType="Employee" useCaching="true">
+    <select id="getEmployeeById" resultType="Employee" useCache="true">
         SELECT * FROM Employees WHERE id = #{value}
     </select>
-    <select id="getAllEmployees" resultMap="employeeResultMap" useCaching="true">
+    <select id="getAllEmployees" resultMap="employeeResultMap" useCache="true">
         SELECT * FROM Employees
     </select>
     <select id="getAllEmployeesByJob" resultMap="employeeResultMap">

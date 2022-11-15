@@ -1,6 +1,8 @@
 package config;
 
-import config.cache.MapperCache;
+import config.cache.Cache;
+import config.cache.FIFOCache;
+import config.cache.LRUCache;
 import config.environment.DataSource;
 import config.environment.Environment;
 import config.environment.Environments;
@@ -8,10 +10,7 @@ import config.mapper.Mapper;
 import config.mapper.Query;
 import config.mapper.ResultMap;
 import org.w3c.dom.*;
-import session.annotations.Delete;
-import session.annotations.Insert;
-import session.annotations.Select;
-import session.annotations.Update;
+import session.annotations.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -248,13 +247,21 @@ public class XMLConfigParser {
     }
 
     void addCache(Node mapperChild, Mapper mapper) throws Exception {
+        String eviction = getAttributeValue(mapperChild, "eviction");
         long flushInterval = Long.parseLong(getAttributeValue(mapperChild, "flushInterval"));
         int size = Integer.parseInt(getAttributeValue(mapperChild, "size"));
-        mapper.cache = new MapperCache<>(size, flushInterval);
+
+        mapper.cache = switch (eviction) {
+            case "FIFO" -> new FIFOCache<>(size, flushInterval);
+            case "LRU" -> new LRUCache<>(size, flushInterval);
+            default -> throw new ParserConfigurationException("Eviction type must be either FIFO or LRU!");
+        };
     }
 
     void addGenericMapper(Class<?> clazz, Map<String, Mapper> mappers) throws Exception {
         Mapper mapper = new Mapper();
+
+        addGenericCache(clazz, mapper);
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method m : methods) {
@@ -297,6 +304,21 @@ public class XMLConfigParser {
         }
 
         return new Query(queryType, sql, returnType, null, useCache);
+    }
+
+    private void addGenericCache(Class<?> clazz, Mapper mapper) throws Exception {
+        CustomCache cacheAnnotation = clazz.getAnnotation(CustomCache.class);
+        if (cacheAnnotation != null) {
+            String eviction = cacheAnnotation.eviction();
+            long flushInterval = cacheAnnotation.flushInterval();
+            int size = cacheAnnotation.size();
+
+            mapper.cache = switch (eviction) {
+                case "FIFO" -> new FIFOCache<>(size, flushInterval);
+                case "LRU" -> new LRUCache<>(size, flushInterval);
+                default -> throw new ParserConfigurationException("Eviction type must be either FIFO or LRU!");
+            };
+        }
     }
 
     private void addQuery(Mapper mapper, Node mapperChild) throws Exception {
